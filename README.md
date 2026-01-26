@@ -2,9 +2,9 @@
 - Raspberry Pi Pico W
 - USB 2.0 Type-A male to Micro-USB Type-B male cable
 - Resistors
-  * R1 47kΩ
-  * R2 220Ω
-  * R3 330Ω
+  * R1: 47 kΩ
+  * R2: 220 Ω
+  * R3: 330 Ω
 - 6N138
 - Jumper wires x5
 - 5-pin DIN cable
