@@ -4,7 +4,7 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MIDI_CLOCK 						0xF8
+#define MIDI_CLOCK						0xF8
 
 #define IS_STATUS_BYTE(byte)					((byte) & 0x80)
 #define IS_NOTE_ON(byte)					(((byte) & 0xF0) == 0x90)
