@@ -9,28 +9,27 @@
 #define UART_RX_PIN 5
 
 int main() {
-    stdio_init_all();
 
-    uart_init(UART_ID, BAUD_RATE);
+	stdio_init_all();
 
-    gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
-    gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
+	uart_init(UART_ID, BAUD_RATE);
 
-    uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
-    uart_set_fifo_enabled(UART_ID, false);
+	gpio_set_function(UART_TX_PIN, GPIO_FUNC_UART);
+	gpio_set_function(UART_RX_PIN, GPIO_FUNC_UART);
 
-	uint8_t last_status_byte = 0;
-        uint8_t last_data_byte = 0;
+	uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
+	uart_set_fifo_enabled(UART_ID, false);
 
+	while (1) {
 
-    while (true) {
-	char buf[32] = {0};
-        if (uart_is_readable(UART_ID)) {
+        if (uart_is_readable(UART_ID))
+	{
 		uint8_t byte = uart_getc(UART_ID);
-		read_note_velocity (byte, buf, sizeof(buf));
-		if (buf[0] != '\0')
+		MidiNoteEvent_t event = read_note_velocity(byte);
+
+		if (event.valid)
 		{
-			printf("%s\n", buf);
+			printf("Note: %s Velocity: %u\n", event.note, event.velocity);
 		}
 	}
     }

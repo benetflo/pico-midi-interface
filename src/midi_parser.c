@@ -32,36 +32,38 @@ void get_note_name (int note, char * buf, size_t len)
 	snprintf(buf, len, "%s%d", note_names[pitch], octave);
 }
 
-void read_note_velocity (uint8_t byte, char buf[], size_t len)
+MidiNoteEvent_t read_note_velocity(uint8_t byte)
 {
-	if (len == 0) return;
+	MidiNoteEvent_t event = {0};
+	event.valid = false;
 
-	if (byte != MIDI_CLOCK)
+	if (IS_REALTIME(byte))
 	{
-	        if (IS_STATUS_BYTE(byte))
-	        {
-	                last_status_byte = byte;
-	                last_data_byte = 0;
-	        }
-	        else
-	        {
-	                if (last_data_byte == 0)
-	                {
-	                        //Note byte
-	                        last_data_byte = byte;
-	                }
-	                else
-	                {
-	                        // Velocity byte
-	                        if (IS_NOTE_ON(last_status_byte) && byte > 0)
-	                        {
-	                                char temp_buf[32] = {0};
-	                                get_note_name(last_data_byte, temp_buf, sizeof(temp_buf));
-	                                snprintf(buf, len, "Note: %s, Velocity %u", temp_buf, byte);
-	                        }
-	                        last_data_byte = 0;
-	                }
-
-	        }
+		 return event;
 	}
+
+	if (IS_STATUS_BYTE(byte))
+	{
+		last_status_byte = byte;
+		last_data_byte = 0;
+		return event;
+	}
+
+	if (last_data_byte == 0)
+	{
+		// Note byte
+		last_data_byte = byte;
+		return event;
+	}
+
+	// Velocity byte
+	if (IS_NOTE_ON(last_status_byte) && byte > 0)
+	{
+		get_note_name(last_data_byte, event.note, sizeof(event.note));
+		event.velocity = byte;
+		event.valid = true;
+	}
+
+	last_data_byte = 0;
+	return event;
 }
