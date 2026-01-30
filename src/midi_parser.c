@@ -36,7 +36,7 @@ void read_note_velocity (uint8_t byte, char buf[], size_t len)
 {
 	if (len == 0) return;
 
-        if (byte != MIDI_CLOCK)
+	if (byte != MIDI_CLOCK)
 	{
 	        if (IS_STATUS_BYTE(byte))
 	        {

@@ -4,11 +4,11 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define MIDI_CLOCK 			0xF8
+#define MIDI_CLOCK 						0xF8
 
-#define IS_STATUS_BYTE(byte)		((byte) & 0x80)
-#define IS_NOTE_ON(byte)		(((byte) & 0xF0) == 0x90)
-#define IS_NOTE_OFF(byte)		(((byte) & 0xF0) == 0x80)
+#define IS_STATUS_BYTE(byte)					((byte) & 0x80)
+#define IS_NOTE_ON(byte)					(((byte) & 0xF0) == 0x90)
+#define IS_NOTE_OFF(byte)					(((byte) & 0xF0) == 0x80)
 
 // Returns where note is in octave
 int note_to_pitch (int note);
