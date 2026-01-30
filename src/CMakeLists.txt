@@ -8,10 +8,10 @@ pico_sdk_init()
 
 project(firmware LANGUAGES C CXX ASM)
 
-add_executable(${PROJECT_NAME} main.c)
+add_executable(${PROJECT_NAME} main.c midi_parser.c)
 
 target_include_directories(${PROJECT_NAME} PRIVATE
-    ${CMAKE_CURRENT_LIST_DIR}/../include
+    ${CMAKE_CURRENT_LIST_DIR}/../inc
 )
 
 target_link_libraries(${PROJECT_NAME}

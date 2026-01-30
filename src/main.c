@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "pico/stdlib.h"
 #include "hardware/uart.h"
+#include "midi_parser.h"
 
 #define UART_ID uart1
 #define BAUD_RATE 31250   // MIDI baudrate
@@ -18,17 +19,20 @@ int main() {
     uart_set_format(UART_ID, 8, 1, UART_PARITY_NONE);
     uart_set_fifo_enabled(UART_ID, false);
 
+	uint8_t last_status_byte = 0;
+        uint8_t last_data_byte = 0;
+
+
     while (true) {
-
+	char buf[32] = {0};
         if (uart_is_readable(UART_ID)) {
-            uint8_t byte = uart_getc(UART_ID);
-
-		if (byte == 0xF8)
+		uint8_t byte = uart_getc(UART_ID);
+		read_note_velocity (byte, buf, sizeof(buf));
+		if (buf[0] != '\0')
 		{
-			continue;
+			printf("%s\n", buf);
 		}
-            printf("RX: 0x%02X\n", byte);
-        }
+	}
     }
 }
 
