@@ -23,7 +23,6 @@ typedef struct
 	bool valid;
 } MidiNoteEvent_t;
 
-
 // Returns where note is in octave
 int note_to_pitch (int note);
 int note_to_octave (int note);
