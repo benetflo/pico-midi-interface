@@ -31,19 +31,17 @@ int main() {
         if (uart_is_readable(UART_ID))
 	{
 		uint8_t byte = uart_getc(UART_ID);
-		MidiNoteEvent_t event = read_note(byte);
+		MidiPitchEvent_t event = read_pitch(byte);
+		MidiNoteEvent_t event1 = read_note(byte);
 
 		if (event.valid)
 		{
-			if (strcmp(event.note, "C5") == 0 && event.velocity > 0)
-			{
-				gpio_put(LED, 1);
-			}
-			else
-			{
-				gpio_put(LED, 0);
-			}
-			printf("Note: %s Velocity: %u\n", event.note, event.velocity);
+			printf("Pitch: %d\n", event.value);
+		}
+
+		if (event1.valid)
+		{
+			printf("Note: %s Velocity: %u\n", event1.note, event1.velocity);
 		}
 	}
     }

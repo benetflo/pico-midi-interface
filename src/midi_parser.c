@@ -2,8 +2,12 @@
 #include <string.h>
 #include <stdio.h>
 
+// Midi Note variables
 static uint8_t last_status_byte = 0;
-static uint8_t last_data_byte = 0;
+static uint8_t last_data_byte_note = 0;
+
+// Midi Pitch variables
+static uint8_t last_data_byte_pitch = 0;
 
 // Array of note names
 const char * note_names[12] =
@@ -45,21 +49,21 @@ MidiNoteEvent_t read_note(uint8_t byte)
 	if (IS_STATUS_BYTE(byte))
 	{
 		last_status_byte = byte;
-		last_data_byte = 0;
+		last_data_byte_note = 0;
 		return event;
 	}
 
-	if (last_data_byte == 0)
+	if (last_data_byte_note == 0)
 	{
 		// Note byte
-		last_data_byte = byte;
+		last_data_byte_note = byte;
 		return event;
 	}
 
 	// Velocity byte
 	if (IS_NOTE_ON(last_status_byte))
 	{
-		get_note_name(last_data_byte, event.note, sizeof(event.note));
+		get_note_name(last_data_byte_note, event.note, sizeof(event.note));
 		event.velocity = byte;
 		event.valid = true;
 
@@ -75,19 +79,59 @@ MidiNoteEvent_t read_note(uint8_t byte)
 	}
 	else if (IS_NOTE_OFF(last_status_byte))
 	{
-		get_note_name(last_data_byte, event.note, sizeof(event.note));
+		get_note_name(last_data_byte_note, event.note, sizeof(event.note));
 		event.velocity = 0;
 		event.valid = true;
 		event.type = NOTE_OFF;
 	}
 
-	last_data_byte = 0;
+	last_data_byte_note = 0;
 	return event;
 }
 
 MidiPitchEvent_t read_pitch(uint8_t byte)
 {
-	;
+	MidiPitchEvent_t event = {0};
+	event.valid = false;
+
+	if (IS_REALTIME(byte))
+	{
+		return event;
+	}
+
+	if (IS_STATUS_BYTE(byte))
+	{
+		if (IS_PITCH_BEND(byte))
+		{
+			last_status_byte = byte;
+			last_data_byte_pitch = 0;
+			return event;
+		}
+	}
+
+	if (last_data_byte_pitch == 0)
+	{
+		last_data_byte_pitch = byte;
+		return event;
+	}
+
+	if (IS_PITCH_BEND(last_status_byte))
+	{
+		event.lsb = last_data_byte_pitch;
+		event.msb = byte;
+
+		int16_t raw = ((event.msb << 7) | event.lsb);
+		if (raw > 16383)
+		{
+			raw = 16383;
+		}
+		event.value = raw - 8192; // normalize
+		event.valid = true;
+		event.type = PITCH_BEND;
+	}
+
+	last_data_byte_pitch = 0;
+	return event;
 }
 
 MidiControllerEvent_t read_controllers(uint8_t byte)
