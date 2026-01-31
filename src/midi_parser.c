@@ -32,7 +32,7 @@ void get_note_name (int note, char * buf, size_t len)
 	snprintf(buf, len, "%s%d", note_names[pitch], octave);
 }
 
-MidiNoteEvent_t read_note_velocity(uint8_t byte)
+MidiNoteEvent_t read_note(uint8_t byte)
 {
 	MidiNoteEvent_t event = {0};
 	event.valid = false;
@@ -57,13 +57,52 @@ MidiNoteEvent_t read_note_velocity(uint8_t byte)
 	}
 
 	// Velocity byte
-	if (IS_NOTE_ON(last_status_byte) && byte > 0)
+	if (IS_NOTE_ON(last_status_byte))
 	{
 		get_note_name(last_data_byte, event.note, sizeof(event.note));
 		event.velocity = byte;
 		event.valid = true;
+
+		if (byte > 0)
+		{
+			event.type = NOTE_ON;
+		}
+		else
+		{
+			// Note OFF via velocity = 0
+			event.type = NOTE_OFF;
+		}
+	}
+	else if (IS_NOTE_OFF(last_status_byte))
+	{
+		get_note_name(last_data_byte, event.note, sizeof(event.note));
+		event.velocity = 0;
+		event.valid = true;
+		event.type = NOTE_OFF;
 	}
 
 	last_data_byte = 0;
 	return event;
+}
+
+MidiPitchEvent_t read_pitch(uint8_t byte)
+{
+	;
+}
+
+MidiControllerEvent_t read_controllers(uint8_t byte)
+{
+	;
+}
+
+// Function to handle midi event after event is determined
+void handle_midi_event_note (MidiNoteEvent_t event)
+{
+	switch (event.type)
+	{
+		case NOTE_ON:
+		case NOTE_OFF:
+			//handle_note(event);
+			break;
+	}
 }
